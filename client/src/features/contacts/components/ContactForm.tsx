@@ -118,7 +118,7 @@ export const ContactForm = ({ initialData, onSuccess }: ContactFormProps) => {
       
       <button 
         type="submit" 
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2 px-4 rounded-md hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg font-medium"
         disabled={isLoading || isSubmitting}
       >
         {isLoading ? 'Submitting...' : initialData ? 'Update Contact' : 'Create Contact'}
