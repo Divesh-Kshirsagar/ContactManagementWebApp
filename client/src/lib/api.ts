@@ -29,8 +29,16 @@ api.interceptors.response.use(
     // Handle specific error cases
     if (error.response) {
       // Server responded with error status
-      const errorMessage = (error.response.data as any)?.message || 'An error occurred';
+      const errorData = error.response.data as any;
+      const errorMessage = errorData?.message || 'An error occurred';
+      const validationErrors = errorData?.errors || [];
+      
       console.error('API Error:', errorMessage);
+      if (validationErrors.length > 0) {
+        console.error('Validation Errors:', validationErrors);
+      }
+      console.error('Request URL:', error.config?.url);
+      console.error('Request Params:', error.config?.params);
     } else if (error.request) {
       // Request made but no response received
       console.error('Network Error: No response from server');

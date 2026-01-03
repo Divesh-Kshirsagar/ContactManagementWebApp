@@ -11,7 +11,16 @@ import type {
 
 // Get all contacts with pagination and filters
 export const getContacts = async (params?: GetContactsParams): Promise<ContactsResponse> => {
-  const response = await api.get<ContactsResponse>('/contacts', { params });
+  // Filter out undefined values and 'All' category to avoid sending them as query params
+  const cleanParams = params ? Object.fromEntries(
+    Object.entries(params).filter(([key, value]) => {
+      if (value === undefined || value === '') return false;
+      if (key === 'category' && value === 'All') return false; // Don't send 'All' to server
+      return true;
+    })
+  ) : {};
+  
+  const response = await api.get<ContactsResponse>('/contacts', { params: cleanParams });
   return response.data;
 };
 

@@ -1,28 +1,89 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useContacts } from '../hooks/useContacts';
 import { useDeleteContact } from '../hooks/useDeleteContact';
 import { useBulkDeleteContacts } from '../hooks/useBulkDeleteContacts';
 import type { Contact } from '../../../types/contact';
 
+const CLIENT_SIDE_THRESHOLD = 1000;
+const ITEMS_PER_PAGE = 10;
+
 export const ContactList = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [category, setCategory] = useState<'All' | 'Work' | 'Family' | 'Friends' | 'Other'>('All');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [useClientSideFiltering, setUseClientSideFiltering] = useState(false);
 
-  // Debounce search input
+  // First, check total count to determine filtering strategy
+  const countQuery = useContacts({ page: 1, limit: 1 });
+  const totalContacts = countQuery.data?.pagination.total || 0;
+
+  // Decide filtering strategy based on total count
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 500);
+    if (totalContacts > 0) {
+      setUseClientSideFiltering(totalContacts <= CLIENT_SIDE_THRESHOLD);
+    }
+  }, [totalContacts]);
 
-    return () => clearTimeout(timer);
-  }, [search]);
-
-  const { data, isLoading, error } = useContacts({ page, limit: 10, search: debouncedSearch, category });
+  // Fetch all contacts if using client-side filtering, otherwise fetch paginated
+  const { data, isLoading, error } = useContacts(
+    useClientSideFiltering
+      ? { page: 1, limit: CLIENT_SIDE_THRESHOLD }
+      : { page, limit: ITEMS_PER_PAGE, search, category }
+  );
+  
   const deleteMutation = useDeleteContact();
   const bulkDeleteMutation = useBulkDeleteContacts();
+
+  // Client-side filtering and pagination
+  const filteredAndPaginatedData = useMemo(() => {
+    if (!useClientSideFiltering || !data?.data) {
+      return data;
+    }
+
+    let filtered = data.data;
+
+    // Apply search filter
+    if (search) {
+      const searchLower = search.toLowerCase();
+      filtered = filtered.filter((contact: Contact) =>
+        contact.name.toLowerCase().includes(searchLower) ||
+        contact.email.toLowerCase().includes(searchLower) ||
+        contact.phone.includes(search)
+      );
+    }
+
+    // Apply category filter
+    if (category !== 'All') {
+      filtered = filtered.filter((contact: Contact) => contact.category === category);
+    }
+
+    // Calculate pagination
+    const totalFiltered = filtered.length;
+    const totalPages = Math.ceil(totalFiltered / ITEMS_PER_PAGE);
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    const paginatedData = filtered.slice(startIndex, endIndex);
+
+    return {
+      data: paginatedData,
+      pagination: {
+        page,
+        limit: ITEMS_PER_PAGE,
+        total: totalFiltered,
+        totalPages,
+      },
+    };
+  }, [useClientSideFiltering, data, search, category, page]);
+
+  // Reset to page 1 when search or category changes
+  useEffect(() => {
+    if (useClientSideFiltering) {
+      setPage(1);
+    }
+  }, [search, category, useClientSideFiltering]);
+
+  const displayData = useClientSideFiltering ? filteredAndPaginatedData : data;
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this contact?')) {
@@ -52,6 +113,13 @@ export const ContactList = () => {
 
   return (
     <div className="space-y-4">
+      {/* Filtering Mode Indicator */}
+      {useClientSideFiltering && (
+        <div className="bg-green-50 border border-green-200 rounded-md p-3 text-sm text-green-800">
+          ⚡ Client-side filtering enabled ({totalContacts} contacts) - Instant search results!
+        </div>
+      )}
+
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <input
@@ -95,7 +163,7 @@ export const ContactList = () => {
       )}
 
       {/* Contact List */}
-      <div className="space-y-3">{data?.data.map((contact: Contact) => (
+      <div className="space-y-3">{displayData?.data.map((contact: Contact) => (
           <div
             key={contact._id}
             className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow bg-white"
@@ -140,7 +208,7 @@ export const ContactList = () => {
       </div>
 
       {/* Pagination */}
-      {data?.pagination && (
+      {displayData?.pagination && (
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-gray-200">
           <button
             onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -150,13 +218,13 @@ export const ContactList = () => {
             Previous
           </button>
           <span className="text-sm text-gray-600">
-            Page <span className="font-semibold">{data.pagination.page}</span> of <span className="font-semibold">{data.pagination.totalPages}</span>
+            Page <span className="font-semibold">{displayData.pagination.page}</span> of <span className="font-semibold">{displayData.pagination.totalPages}</span>
             <span className="mx-2">•</span>
-            <span className="font-semibold">{data.pagination.total}</span> total contacts
+            <span className="font-semibold">{displayData.pagination.total}</span> total contacts
           </span>
           <button
             onClick={() => setPage(p => p + 1)}
-            disabled={page >= data.pagination.totalPages}
+            disabled={page >= displayData.pagination.totalPages}
             className="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
           >
             Next
