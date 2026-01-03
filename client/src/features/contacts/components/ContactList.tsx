@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useContacts } from '../hooks/useContacts';
 import { useDeleteContact } from '../hooks/useDeleteContact';
 import { useBulkDeleteContacts } from '../hooks/useBulkDeleteContacts';
@@ -7,10 +7,20 @@ import type { Contact } from '../../../types/contact';
 export const ContactList = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [category, setCategory] = useState<'All' | 'Work' | 'Family' | 'Friends' | 'Other'>('All');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  const { data, isLoading, error } = useContacts({ page, limit: 10, search, category });
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const { data, isLoading, error } = useContacts({ page, limit: 10, search: debouncedSearch, category });
   const deleteMutation = useDeleteContact();
   const bulkDeleteMutation = useBulkDeleteContacts();
 
