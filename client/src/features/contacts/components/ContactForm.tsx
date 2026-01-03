@@ -46,40 +46,52 @@ export const ContactForm = ({ initialData, onSuccess }: ContactFormProps) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Name *
+        </label>
         <input 
           {...register("name")} 
-          placeholder="Name" 
-          className="border p-2 w-full rounded"
+          placeholder="John Doe" 
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           disabled={isLoading}
         />
-        {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
+        {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name.message}</p>}
       </div>
       
       <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Email *
+        </label>
         <input 
           {...register("email")} 
-          placeholder="Email" 
+          placeholder="john@example.com" 
           type="email"
-          className="border p-2 w-full rounded"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           disabled={isLoading}
         />
-        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+        {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
       </div>
 
       <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Phone *
+        </label>
         <input 
           {...register("phone")} 
-          placeholder="Phone" 
-          className="border p-2 w-full rounded"
+          placeholder="1234567890" 
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           disabled={isLoading}
         />
-        {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
+        {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
       </div>
 
       <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Category
+        </label>
         <select 
           {...register("category")} 
-          className="border p-2 w-full rounded"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
           disabled={isLoading}
         >
           <option value="Work">Work</option>
@@ -87,32 +99,37 @@ export const ContactForm = ({ initialData, onSuccess }: ContactFormProps) => {
           <option value="Friends">Friends</option>
           <option value="Other">Other</option>
         </select>
-        {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>}
+        {errors.category && <p className="text-red-600 text-sm mt-1">{errors.category.message}</p>}
       </div>
 
       <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Message (Optional)
+        </label>
         <textarea 
           {...register("message")} 
-          placeholder="Message (optional)" 
-          className="border p-2 w-full rounded"
+          placeholder="Additional notes..." 
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed resize-none"
           rows={4}
           disabled={isLoading}
         />
-        {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>}
+        {errors.message && <p className="text-red-600 text-sm mt-1">{errors.message.message}</p>}
       </div>
       
       <button 
         type="submit" 
-        className="bg-blue-600 text-white p-2 rounded w-full hover:bg-blue-700 disabled:bg-gray-400"
+        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
         disabled={isLoading || isSubmitting}
       >
         {isLoading ? 'Submitting...' : initialData ? 'Update Contact' : 'Create Contact'}
       </button>
 
       {(createMutation.isError || updateMutation.isError) && (
-        <p className="text-red-500 text-sm">
-          Error: {(createMutation.error || updateMutation.error)?.message || 'Something went wrong'}
-        </p>
+        <div className="bg-red-50 border border-red-200 rounded-md p-3">
+          <p className="text-red-800 text-sm">
+            Error: {(createMutation.error || updateMutation.error)?.message || 'Something went wrong'}
+          </p>
+        </div>
       )}
     </form>
   );
