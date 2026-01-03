@@ -37,7 +37,7 @@ export const ContactForm = ({ initialData, onSuccess }: ContactFormProps) => {
       }
       onSuccess?.();
     } catch (error) {
-      console.error('Error submitting form:', error);
+      // Error is handled by React Query
     }
   };
 
