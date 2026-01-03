@@ -14,12 +14,12 @@ export const Button = ({
   disabled,
   ...props 
 }: ButtonProps) => {
-  const baseStyles = "px-4 py-2 rounded-md font-medium transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed";
+  const baseStyles = "inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-md transform hover:-translate-y-0.5 active:translate-y-0";
   
   const variantStyles = {
-    primary: "bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 focus:ring-purple-500",
-    danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
-    secondary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500"
+    primary: "bg-linear-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 focus:ring-indigo-500",
+    danger: "bg-linear-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 focus:ring-red-500",
+    secondary: "bg-linear-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-gray-200 hover:to-gray-300 focus:ring-gray-400 shadow-sm"
   };
 
   return (
