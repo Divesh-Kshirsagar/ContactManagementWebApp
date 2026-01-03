@@ -4,6 +4,12 @@ A modern, full-stack contact management system with real-time search, filtering,
 
 🔗 **Live Demo:** [https://contact-management-web-app-theta.vercel.app](https://contact-management-web-app-theta.vercel.app)
 
+## 📸 Preview
+
+![App Preview](.github/preview.png)
+
+> **Note:** Take a screenshot of your running application and save it as `.github/preview.png`
+
 ## ✨ Features
 
 - ✅ **CRUD Operations** - Create, Read, Update, Delete contacts
