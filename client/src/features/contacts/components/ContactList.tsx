@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useContacts } from '../hooks/useContacts';
 import { useDeleteContact } from '../hooks/useDeleteContact';
 import { useBulkDeleteContacts } from '../hooks/useBulkDeleteContacts';
+import { Button, Input, Select } from '../../../components/ui';
 import type { Contact } from '../../../types/contact';
 
 const CLIENT_SIDE_THRESHOLD = 1000;
@@ -12,17 +13,14 @@ export const ContactList = () => {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<'All' | 'Work' | 'Family' | 'Friends' | 'Other'>('All');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [useClientSideFiltering, setUseClientSideFiltering] = useState(false);
 
   // First, check total count to determine filtering strategy
   const countQuery = useContacts({ page: 1, limit: 1 });
   const totalContacts = countQuery.data?.pagination.total || 0;
 
   // Decide filtering strategy based on total count
-  useEffect(() => {
-    if (totalContacts > 0) {
-      setUseClientSideFiltering(totalContacts <= CLIENT_SIDE_THRESHOLD);
-    }
+  const useClientSideFiltering = useMemo(() => {
+    return totalContacts > 0 && totalContacts <= CLIENT_SIDE_THRESHOLD;
   }, [totalContacts]);
 
   // Fetch all contacts if using client-side filtering, otherwise fetch paginated
@@ -76,12 +74,13 @@ export const ContactList = () => {
     };
   }, [useClientSideFiltering, data, search, category, page]);
 
-  // Reset to page 1 when search or category changes
+  // Reset to page 1 when search or category changes (client-side filtering only)
   useEffect(() => {
     if (useClientSideFiltering) {
       setPage(1);
     }
-  }, [search, category, useClientSideFiltering]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, category]);
 
   const displayData = useClientSideFiltering ? filteredAndPaginatedData : data;
 
@@ -122,37 +121,37 @@ export const ContactList = () => {
 
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <input
+        <Input
           type="text"
           placeholder="Search contacts..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="flex-1"
         />
-        <select
+        <Select
           value={category}
-          onChange={(e) => setCategory(e.target.value as any)}
-          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+          onChange={(e) => setCategory(e.target.value as 'All' | 'Work' | 'Family' | 'Friends' | 'Other')}
         >
           <option value="All">All Categories</option>
           <option value="Work">Work</option>
           <option value="Family">Family</option>
           <option value="Friends">Friends</option>
           <option value="Other">Other</option>
-        </select>
+        </Select>
       </div>
 
       {/* Bulk Actions */}
       {selectedIds.length > 0 && (
         <div className="flex items-center gap-3 bg-blue-50 border border-blue-200 p-4 rounded-md">
           <span className="text-sm font-medium text-blue-900">{selectedIds.length} selected</span>
-          <button
+          <Button
             onClick={handleBulkDelete}
-            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-sm font-medium"
-            disabled={bulkDeleteMutation.isPending}
+            variant="danger"
+            isLoading={bulkDeleteMutation.isPending}
+            className="text-sm"
           >
-            {bulkDeleteMutation.isPending ? 'Deleting...' : 'Delete Selected'}
-          </button>
+            Delete Selected
+          </Button>
           <button
             onClick={() => setSelectedIds([])}
             className="text-gray-600 hover:text-gray-800 text-sm font-medium"
@@ -195,13 +194,14 @@ export const ContactList = () => {
                   {contact.category}
                 </span>
               </div>
-              <button
+              <Button
                 onClick={() => handleDelete(contact._id)}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors text-sm font-medium"
-                disabled={deleteMutation.isPending}
+                variant="danger"
+                isLoading={deleteMutation.isPending}
+                className="text-sm"
               >
                 Delete
-              </button>
+              </Button>
             </div>
           </div>
         ))}
@@ -210,25 +210,27 @@ export const ContactList = () => {
       {/* Pagination */}
       {displayData?.pagination && (
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-gray-200">
-          <button
+          <Button
             onClick={() => setPage(p => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
+            variant="secondary"
+            className="w-full sm:w-auto px-6"
           >
             Previous
-          </button>
+          </Button>
           <span className="text-sm text-gray-600">
             Page <span className="font-semibold">{displayData.pagination.page}</span> of <span className="font-semibold">{displayData.pagination.totalPages}</span>
             <span className="mx-2">•</span>
             <span className="font-semibold">{displayData.pagination.total}</span> total contacts
           </span>
-          <button
+          <Button
             onClick={() => setPage(p => p + 1)}
             disabled={page >= displayData.pagination.totalPages}
-            className="w-full sm:w-auto bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors font-medium"
+            variant="secondary"
+            className="w-full sm:w-auto px-6"
           >
             Next
-          </button>
+          </Button>
         </div>
       )}
     </div>

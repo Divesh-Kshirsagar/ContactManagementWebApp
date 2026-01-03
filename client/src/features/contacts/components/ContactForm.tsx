@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { contactSchema, type ContactFormData } from '../validation/contactSchema';
 import { useCreateContact } from '../hooks/useCreateContact';
 import { useUpdateContact } from '../hooks/useUpdateContact';
+import { Button, Input, Select, Textarea } from '../../../components/ui';
 import type { Contact } from '../../../types/contact';
 
 interface ContactFormProps {
@@ -14,7 +15,7 @@ export const ContactForm = ({ initialData, onSuccess }: ContactFormProps) => {
   const createMutation = useCreateContact();
   const updateMutation = useUpdateContact();
   
-  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<ContactFormData>({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
     defaultValues: initialData ? {
       name: initialData.name,
@@ -36,7 +37,7 @@ export const ContactForm = ({ initialData, onSuccess }: ContactFormProps) => {
         reset();
       }
       onSuccess?.();
-    } catch (error) {
+    } catch {
       // Error is handled by React Query
     }
   };
@@ -45,84 +46,60 @@ export const ContactForm = ({ initialData, onSuccess }: ContactFormProps) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Name *
-        </label>
-        <input 
-          {...register("name")} 
-          placeholder="John Doe" 
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-          disabled={isLoading}
-        />
-        {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name.message}</p>}
-      </div>
+      <Input
+        {...register("name")}
+        label="Name *"
+        placeholder="John Doe"
+        error={errors.name?.message}
+        disabled={isLoading}
+      />
       
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Email *
-        </label>
-        <input 
-          {...register("email")} 
-          placeholder="john@example.com" 
-          type="email"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-          disabled={isLoading}
-        />
-        {errors.email && <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>}
-      </div>
+      <Input
+        {...register("email")}
+        label="Email *"
+        type="email"
+        placeholder="john@example.com"
+        error={errors.email?.message}
+        disabled={isLoading}
+      />
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Phone *
-        </label>
-        <input 
-          {...register("phone")} 
-          placeholder="1234567890" 
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-          disabled={isLoading}
-        />
-        {errors.phone && <p className="text-red-600 text-sm mt-1">{errors.phone.message}</p>}
-      </div>
+      <Input
+        {...register("phone")}
+        label="Phone *"
+        placeholder="1234567890"
+        error={errors.phone?.message}
+        disabled={isLoading}
+      />
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Category
-        </label>
-        <select 
-          {...register("category")} 
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-          disabled={isLoading}
-        >
-          <option value="Work">Work</option>
-          <option value="Family">Family</option>
-          <option value="Friends">Friends</option>
-          <option value="Other">Other</option>
-        </select>
-        {errors.category && <p className="text-red-600 text-sm mt-1">{errors.category.message}</p>}
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Message (Optional)
-        </label>
-        <textarea 
-          {...register("message")} 
-          placeholder="Additional notes..." 
-          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed resize-none"
-          rows={4}
-          disabled={isLoading}
-        />
-        {errors.message && <p className="text-red-600 text-sm mt-1">{errors.message.message}</p>}
-      </div>
-      
-      <button 
-        type="submit" 
-        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-2 px-4 rounded-md hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg font-medium"
-        disabled={isLoading || isSubmitting}
+      <Select
+        {...register("category")}
+        label="Category"
+        error={errors.category?.message}
+        disabled={isLoading}
       >
-        {isLoading ? 'Submitting...' : initialData ? 'Update Contact' : 'Create Contact'}
-      </button>
+        <option value="Work">Work</option>
+        <option value="Family">Family</option>
+        <option value="Friends">Friends</option>
+        <option value="Other">Other</option>
+      </Select>
+
+      <Textarea
+        {...register("message")}
+        label="Message (Optional)"
+        placeholder="Additional notes..."
+        rows={4}
+        error={errors.message?.message}
+        disabled={isLoading}
+      />
+      
+      <Button
+        type="submit"
+        variant="primary"
+        isLoading={isLoading}
+        className="w-full"
+      >
+        {initialData ? 'Update Contact' : 'Create Contact'}
+      </Button>
 
       {(createMutation.isError || updateMutation.isError) && (
         <div className="bg-red-50 border border-red-200 rounded-md p-3">

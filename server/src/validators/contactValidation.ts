@@ -17,7 +17,7 @@ export const createContactSchema = z.object({
       .string()
       .min(10, 'Phone number must be at least 10 digits')
       .max(15, 'Phone number must not exceed 15 digits')
-      .regex(/^[+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$/, 'Invalid phone number format')
+      .regex(/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,9}$/, 'Invalid phone number format')
       .trim(),
     category: z
       .enum(['Work', 'Family', 'Friends', 'Other'])
@@ -51,7 +51,7 @@ export const updateContactSchema = z.object({
       .string()
       .min(10, 'Phone number must be at least 10 digits')
       .max(15, 'Phone number must not exceed 15 digits')
-      .regex(/^[+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$/, 'Invalid phone number format')
+      .regex(/^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,4}[-\s.]?[0-9]{1,9}$/, 'Invalid phone number format')
       .trim()
       .optional(),
     category: z
